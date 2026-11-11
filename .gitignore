@@ -1,0 +1,15 @@
+# Backup dan dependencies
+_legacy_backup/
+node_modules/
+
+# System files
+.DS_Store
+*.log
+
+# Environment dan credentials
+.env
+.env.*
+!.env.example
+credentials/
+token.json
+*service-account*.json
