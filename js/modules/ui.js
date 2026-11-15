@@ -189,7 +189,7 @@ function openSuccessModal(orderRecord) {
     }
 
     if (proofInfoBox) {
-        if (orderRecord.paymentMethod === 'QRIS' && orderRecord.proofFilename) {
+        if ((orderRecord.paymentMethod === 'QRIS' || orderRecord.paymentMethod === 'Transfer Bank') && orderRecord.proofFilename) {
             proofInfoBox.style.display = 'flex';
             if (proofFilenameEl) proofFilenameEl.innerText = orderRecord.proofFilename;
         } else {

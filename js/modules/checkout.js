@@ -17,13 +17,8 @@ function selectAdmin(adminId) {
 
     const btnSubmit = document.getElementById('btnSubmitWA');
     if (btnSubmit) {
-        if (state.paymentMethod === 'cash') {
-            btnSubmit.className = 'btn btn-whatsapp btn-block';
-            btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Konfirmasi Pesanan COD ke ${admin.name}`;
-        } else {
-            btnSubmit.className = 'btn btn-primary btn-block';
-            btnSubmit.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verifikasi Pembayaran & Selesaikan Pesanan`;
-        }
+        btnSubmit.className = 'btn btn-primary btn-block';
+        btnSubmit.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verifikasi Pembayaran & Selesaikan Pesanan`;
     }
 
     updateWAPreview();
@@ -157,9 +152,9 @@ function generateWAMessage(orderId = null) {
     priceDetails += `*ONGKOS KIRIM (${campus || 'Semua Lokasi'}):* Gratis (Free Ongkir Seluruh Kampus)\n`;
     priceDetails += `*TOTAL PEMBAYARAN:* Rp ${grandTotal.toLocaleString('id-ID')}`;
 
-    const paymentText = state.paymentMethod === 'qris'
-        ? `*METODE PEMBAYARAN:* QRIS (E-Wallet & Bank)\n_(Bukti transfer screenshot sudah di-upload & siap dikonfirmasi)_`
-        : `*METODE PEMBAYARAN:* Bayar Tunai / Langsung (COD)\n_(Siapkan uang pas saat pesanan diantar ya kak)_`;
+    const paymentText = state.paymentMethod === 'transfer'
+        ? `*METODE PEMBAYARAN:* Transfer Bank BCA (7560493139 a.n. RESA SAMANTA)\n_(Bukti transfer screenshot sudah di-upload & siap dikonfirmasi)_`
+        : `*METODE PEMBAYARAN:* QRIS (E-Wallet & Bank)\n_(Bukti pembayaran screenshot sudah di-upload & siap dikonfirmasi)_`;
 
     const idLabel = orderId ? `*ID PESANAN:* #${orderId}\n` : '';
 
@@ -197,45 +192,47 @@ function selectPaymentMethod(method) {
     state.paymentMethod = method;
 
     const optQris = document.getElementById('opt-qris');
-    const optCash = document.getElementById('opt-cash');
+    const optTransfer = document.getElementById('opt-transfer');
     const radioQris = document.getElementById('radio-qris');
-    const radioCash = document.getElementById('radio-cash');
-    const qrisSection = document.getElementById('qrisPaymentSection');
-    const cashHelperBox = document.getElementById('cashHelperBox');
+    const radioTransfer = document.getElementById('radio-transfer');
+    const qrisBox = document.getElementById('qrisPreviewHolder');
+    const transferBox = document.getElementById('bankTransferPreviewHolder');
     const btnSubmit = document.getElementById('btnSubmitWA');
     const checkoutStatusBadge = document.getElementById('checkoutStatusBadge');
-
-    const activeAdmin = state.admins.find(a => a.id === state.selectedAdminId) || state.admins[0];
+    const proofUploadDesc = document.getElementById('proofUploadDesc');
 
     if (method === 'qris') {
         optQris?.classList.add('active');
-        optCash?.classList.remove('active');
+        optTransfer?.classList.remove('active');
         if (radioQris) radioQris.checked = true;
-        if (qrisSection) qrisSection.style.display = 'block';
-        if (cashHelperBox) cashHelperBox.style.display = 'none';
-        if (btnSubmit) {
-            btnSubmit.className = 'btn btn-primary btn-block';
-            btnSubmit.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verifikasi Pembayaran & Selesaikan Pesanan`;
+        if (qrisBox) qrisBox.style.display = 'block';
+        if (transferBox) transferBox.style.display = 'none';
+        if (proofUploadDesc) {
+            proofUploadDesc.innerText = 'Scan QRIS di atas via m-Banking atau E-Wallet, lalu pilih file screenshot bukti bayar dari perangkat:';
         }
         if (checkoutStatusBadge) {
-            checkoutStatusBadge.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Verifikasi keamanan aktif. Pesanan tervalidasi sebelum masuk ke Google Spreadsheet.`;
+            checkoutStatusBadge.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Verifikasi QRIS aktif. Pesanan tervalidasi sebelum masuk ke Google Spreadsheet.`;
         }
-        if (typeof updateQrisAmountDisplay === 'function') updateQrisAmountDisplay();
     } else {
-        optCash?.classList.add('active');
+        optTransfer?.classList.add('active');
         optQris?.classList.remove('active');
-        if (radioCash) radioCash.checked = true;
-        if (qrisSection) qrisSection.style.display = 'none';
-        if (cashHelperBox) cashHelperBox.style.display = 'flex';
-        if (btnSubmit) {
-            btnSubmit.className = 'btn btn-whatsapp btn-block';
-            btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Konfirmasi Pesanan COD ke ${activeAdmin.name}`;
+        if (radioTransfer) radioTransfer.checked = true;
+        if (qrisBox) qrisBox.style.display = 'none';
+        if (transferBox) transferBox.style.display = 'block';
+        if (proofUploadDesc) {
+            proofUploadDesc.innerText = 'Transfer ke rekening di atas via m-Banking/ATM, lalu pilih file screenshot bukti transfer dari perangkat:';
         }
         if (checkoutStatusBadge) {
-            checkoutStatusBadge.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> Pesanan COD tercatat & diteruskan langsung ke WhatsApp admin.`;
+            checkoutStatusBadge.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Verifikasi Transfer Bank aktif. Pesanan tervalidasi sebelum masuk ke Google Spreadsheet.`;
         }
     }
 
+    if (btnSubmit) {
+        btnSubmit.className = 'btn btn-primary btn-block';
+        btnSubmit.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verifikasi Pembayaran & Selesaikan Pesanan`;
+    }
+
+    if (typeof updateQrisAmountDisplay === 'function') updateQrisAmountDisplay();
     updateWAPreview();
 }
 
@@ -256,9 +253,10 @@ async function handleFormSubmit(event) {
         return;
     }
 
-    // Validasi Screenshot QRIS jika metode pembayaran QRIS
-    if (state.paymentMethod === 'qris' && !state.qrisProofDataUrl) {
-        showToast('⚠️ Wajib melampirkan foto bukti pembayaran QRIS!');
+    // Validasi Screenshot Bukti Pembayaran / Transfer (Wajib untuk QRIS dan Transfer Bank)
+    if (!state.qrisProofDataUrl) {
+        const methodLabel = state.paymentMethod === 'transfer' ? 'Transfer Bank' : 'QRIS';
+        showToast(`⚠️ Wajib melampirkan foto bukti pembayaran / transfer ${methodLabel}!`);
         const dropzone = document.getElementById('proofDropzone');
         if (dropzone) {
             dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -379,7 +377,7 @@ async function handleFormSubmit(event) {
             itemsSummary: itemsSummary,
             items: JSON.parse(JSON.stringify(state.cart)),
             adminName: activeAdmin.fullName,
-            paymentMethod: state.paymentMethod === 'qris' ? 'QRIS' : 'Tunai / COD',
+            paymentMethod: state.paymentMethod === 'transfer' ? 'Transfer Bank' : 'QRIS',
             totalPrice: totalAmount,
             notes: custNotes,
             status: 'Pesanan Masuk',

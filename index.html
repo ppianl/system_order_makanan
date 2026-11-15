@@ -122,7 +122,7 @@
                 <div class="hero-bento-item">
                     <div class="bento-icon">⚡</div>
                     <strong>Pesan Kilat WA</strong>
-                    <small>Verifikasi QRIS &amp; Bayar COD</small>
+                    <small>Verifikasi QRIS &amp; Transfer Bank</small>
                 </div>
             </div>
         </div>
@@ -218,7 +218,7 @@
                 <div class="step-icon"><i class="fa-brands fa-whatsapp"></i></div>
                 <div class="step-content">
                     <h3>Direct Checkout WA</h3>
-                    <p>Rincian pesanan otomatis siap dikirim ke WhatsApp Admin Resa. Bayar praktis via QRIS resmi atau COD!</p>
+                    <p>Rincian pesanan otomatis siap dikirim ke WhatsApp Admin Resa. Bayar praktis via QRIS resmi atau Transfer Bank!</p>
                 </div>
             </div>
         </div>
@@ -346,13 +346,13 @@
                                 <span class="payment-check"><i class="fa-solid fa-circle-check"></i></span>
                             </div>
 
-                            <div class="payment-option-card" id="opt-cash" onclick="selectPaymentMethod('cash')">
-                                <input type="radio" name="paymentMethodRadio" id="radio-cash" value="cash">
+                            <div class="payment-option-card" id="opt-transfer" onclick="selectPaymentMethod('transfer')">
+                                <input type="radio" name="paymentMethodRadio" id="radio-transfer" value="transfer">
                                 <div class="payment-card-content">
-                                    <div class="payment-icon cash-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                                    <div class="payment-icon bank-icon"><i class="fa-solid fa-building-columns"></i></div>
                                     <div class="payment-info">
-                                        <strong>Bayar Tunai / COD</strong>
-                                        <small>Bayar saat pesanan tiba di kampus/alamat</small>
+                                        <strong>Transfer Bank</strong>
+                                        <small>BCA, BRI, Mandiri, dll.</small>
                                     </div>
                                 </div>
                                 <span class="payment-check"><i class="fa-solid fa-circle-check"></i></span>
@@ -368,7 +368,7 @@
                             </div>
                         </div>
 
-                        <!-- QRIS Dynamic Payment Section -->
+                        <!-- Payment Details Card (QRIS & Transfer Bank) -->
                         <div id="qrisPaymentSection" class="qris-checkout-card">
                             <div class="qris-amount-highlight">
                                 <div class="amount-label-row">
@@ -386,7 +386,7 @@
                             </div>
 
                             <!-- QRIS Visual Code Box -->
-                            <div class="qris-preview-holder">
+                            <div class="qris-preview-holder" id="qrisPreviewHolder">
                                 <div class="qris-card-header-badge">
                                     <span class="badge-qris-title"><i class="fa-solid fa-qrcode"></i> KODE QRIS RESMI GIVORA</span>
                                     <span class="badge-qris-sub">Scan langsung melalui kamera m-Banking atau E-Wallet pilihanmu</span>
@@ -417,6 +417,35 @@
                                 </div>
                             </div>
 
+                            <!-- Bank Transfer Box -->
+                            <div class="bank-transfer-holder" id="bankTransferPreviewHolder" style="display: none;">
+                                <div class="bank-card-header-badge">
+                                    <span class="badge-bank-title"><i class="fa-solid fa-building-columns"></i> REKENING RESMI PEMBAYARAN</span>
+                                    <span class="badge-bank-sub">Transfer tepat sesuai nominal tagihan ke rekening resmi berikut:</span>
+                                </div>
+
+                                <div class="bank-accounts-list">
+                                    <!-- Rekening BCA -->
+                                    <div class="bank-account-item">
+                                        <div class="bank-item-header">
+                                            <span class="bank-tag bca-tag">BANK BCA</span>
+                                            <span class="bank-owner">a.n. RESA SAMANTA</span>
+                                        </div>
+                                        <div class="bank-item-number-row">
+                                            <span class="bank-number">7560493139</span>
+                                            <button type="button" class="btn-copy-bank" onclick="copyAccountNumber('7560493139', 'BCA')" title="Salin No Rekening">
+                                                <i class="fa-solid fa-copy"></i> Salin No. Rek
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bank-transfer-note">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                    <span>Setelah transfer berhasil, pastikan ambil <strong>screenshot bukti transfer</strong> lalu upload pada kotak di bawah.</span>
+                                </div>
+                            </div>
+
                             <!-- Proof Upload Section -->
                             <div class="proof-upload-section">
                                 <div class="proof-header">
@@ -425,7 +454,7 @@
                                     </label>
                                     <span class="proof-badge-required"><i class="fa-solid fa-lock"></i> Wajib Upload</span>
                                 </div>
-                                <p class="proof-desc">Selesaikan transfer di aplikasi kamu, lalu pilih file screenshot bukti pembayaran dari perangkat:</p>
+                                <p class="proof-desc" id="proofUploadDesc">Selesaikan pembayaran di m-Banking atau E-Wallet, lalu pilih file screenshot bukti transfer dari perangkat:</p>
 
                                 <div class="proof-dropzone-box" id="proofDropzone" onclick="document.getElementById('qrisProofFile').click()">
                                     <input type="file" id="qrisProofFile" accept="image/*" style="display:none;" onchange="handleProofFileSelected(event)">
@@ -456,7 +485,7 @@
                                 <!-- Optional Ref Number -->
                                 <div class="proof-ref-box">
                                     <label for="qrisRefNumber"><i class="fa-solid fa-hashtag"></i> No. Referensi / ID Transaksi <small>(Opsional)</small>:</label>
-                                    <input type="text" id="qrisRefNumber" placeholder="Contoh: 8941 atau GOPAY-9921" maxlength="40">
+                                    <input type="text" id="qrisRefNumber" placeholder="Contoh: 8941 atau TRF-BCA-9921" maxlength="40">
                                 </div>
                             </div>
                         </div>

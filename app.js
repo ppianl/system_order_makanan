@@ -22,7 +22,12 @@ const state = {
     ],
     selectedAdminId: 'admin_resa',
     targetWA: '6282294562384', // Admin Resa WhatsApp
-    paymentMethod: 'qris',     // 'qris' atau 'cash'
+    paymentMethod: 'qris',     // 'qris' atau 'transfer'
+    bankAccount: {
+        bank: 'BCA',
+        number: '7560493139',
+        holder: 'RESA SAMANTA'
+    },
     sheetsEndpointURL: 'https://script.google.com/macros/s/AKfycbzxSWU2exTUQ8RtbRjWjsikSZJZ5JUP3DjsE6NihjsjYXDnzgsFa1DvXMsNjOlUjpD2jg/exec', // Webhook URL Google Spreadsheet Baru
 
     // State Verifikasi QRIS Anti-Pembeli Fiktif

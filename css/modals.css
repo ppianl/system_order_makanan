@@ -400,6 +400,11 @@
     color: #D97706;
 }
 
+.bank-icon {
+    background: #EEF2FF;
+    color: #4F46E5;
+}
+
 .cash-icon {
     background: #D1FAE5;
     color: #059669;
@@ -573,6 +578,139 @@
     font-weight: 700;
     color: var(--brand-primary);
     text-decoration: underline;
+}
+
+/* --- BANK TRANSFER BOX --- */
+.bank-transfer-holder {
+    background: #FFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.bank-card-header-badge {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.badge-bank-title {
+    display: block;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--brand-primary);
+    letter-spacing: 0.5px;
+}
+
+.badge-bank-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.bank-accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.bank-account-item {
+    background: var(--bg-surface-alt);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    transition: var(--transition-fast);
+}
+
+.bank-account-item:hover {
+    border-color: var(--brand-primary);
+}
+
+.bank-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+
+.bank-tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bca-tag {
+    background: #005baa;
+    color: #FFF;
+}
+
+.bri-tag {
+    background: #00529c;
+    color: #FFF;
+}
+
+.mandiri-tag {
+    background: #f59e0b;
+    color: #FFF;
+}
+
+.bank-owner {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.bank-item-number-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.bank-number {
+    font-family: monospace;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+}
+
+.btn-copy-bank {
+    background: #FFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: var(--transition-fast);
+}
+
+.btn-copy-bank:hover {
+    background: var(--brand-primary);
+    color: #FFF;
+    border-color: var(--brand-primary);
+}
+
+.bank-transfer-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    background: #FFFBEB;
+    border-left: 3px solid #F59E0B;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: #92400E;
+    line-height: 1.4;
 }
 
 /* Proof Upload Dropzone */

@@ -32,6 +32,19 @@ function copyQrisAmount() {
     }
 }
 
+function copyAccountNumber(accountNumber, bankName = 'Bank') {
+    if (!accountNumber) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(accountNumber).then(() => {
+            showToast(`📋 No. Rekening ${bankName} (${accountNumber}) berhasil disalin!`);
+        }).catch(() => {
+            showToast(`No. Rekening ${bankName}: ${accountNumber}`);
+        });
+    } else {
+        showToast(`No. Rekening ${bankName}: ${accountNumber}`);
+    }
+}
+
 function compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.82) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -103,7 +116,8 @@ async function processProofFile(file) {
         if (dropzoneIdle) dropzoneIdle.style.display = 'none';
         if (dropzonePreview) dropzonePreview.style.display = 'flex';
 
-        showToast('✅ Bukti screenshot pembayaran QRIS berhasil dilampirkan!');
+        const methodLabel = state.paymentMethod === 'transfer' ? 'Transfer Bank' : 'QRIS';
+        showToast(`✅ Bukti screenshot pembayaran ${methodLabel} berhasil dilampirkan!`);
     } catch (err) {
         console.error('Error optimizing image:', err);
         showToast('⚠️ Gagal memproses gambar bukti bayar.');
@@ -196,7 +210,8 @@ function openProofViewerModal(orderId) {
     if (img) img.src = order.proofDataUrl;
     if (downloadBtn) {
         downloadBtn.href = order.proofDataUrl;
-        downloadBtn.download = `Bukti_QRIS_${order.id}.jpg`;
+        const prefix = order.paymentMethod === 'Transfer Bank' ? 'Bukti_Transfer' : 'Bukti_QRIS';
+        downloadBtn.download = `${prefix}_${order.id}.jpg`;
     }
     if (orderIdEl) orderIdEl.innerText = order.id;
     if (custEl) custEl.innerText = order.customerName;
