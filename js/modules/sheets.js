@@ -97,6 +97,11 @@ async function postOrderToSpreadsheet(orderRecord) {
             major: orderRecord.major || '-',
             address: orderRecord.address,
             itemsSummary: orderRecord.itemsSummary,
+            items: (orderRecord.items || []).map(it => ({
+                productId: it.productId,
+                name: it.name,
+                qty: it.qty
+            })),
             adminName: orderRecord.adminName,
             paymentMethod: orderRecord.paymentMethod,
             totalPrice: orderRecord.totalPrice,
@@ -153,6 +158,99 @@ async function fetchLiveOrdersFromSpreadsheet(silent = false) {
         if (!silent) showToast('ℹ️ Menampilkan riwayat pesanan lokal.');
     } finally {
         if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+    }
+}
+
+// --- Live Inventory Stocks Cloud Synchronization ---
+
+async function fetchLiveStocksFromSpreadsheet(silent = false) {
+    const stockRefreshIcon = document.getElementById('stockRefreshIcon');
+    if (stockRefreshIcon) stockRefreshIcon.classList.add('fa-spin');
+
+    if (!state.sheetsEndpointURL) {
+        if (stockRefreshIcon) stockRefreshIcon.classList.remove('fa-spin');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${state.sheetsEndpointURL}?action=getStocks&_t=${Date.now()}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+        if (result && result.status === 'success' && result.stocks) {
+            // Simpan stok cloud ke memori & localStorage
+            if (typeof saveAllStocks === 'function') {
+                saveAllStocks(result.stocks);
+            }
+
+            // Perbarui tampilan katalog menu langsung di layar
+            if (typeof renderProductsGrid === 'function') {
+                renderProductsGrid(state.selectedCategory);
+            }
+
+            // Jika modal stok admin sedang terbuka dan bukan mode edit, perbarui tabelnya
+            if (!state.stockEditMode && typeof renderStockTable === 'function') {
+                const stockModal = document.getElementById('stockModal');
+                if (stockModal && stockModal.classList.contains('active')) {
+                    renderStockTable();
+                }
+            }
+
+            // Sesuaikan cart jika stok berkurang saat user sedang belanja
+            if (state.cart && state.cart.length > 0 && typeof getProductStock === 'function') {
+                let cartChanged = false;
+                state.cart.forEach(cartItem => {
+                    const curStock = getProductStock(cartItem.productId).stock;
+                    if (curStock <= 0) {
+                        cartItem.qty = 0;
+                        cartChanged = true;
+                    } else if (cartItem.qty > curStock) {
+                        cartItem.qty = curStock;
+                        cartChanged = true;
+                    }
+                });
+
+                if (cartChanged) {
+                    state.cart = state.cart.filter(item => item.qty > 0);
+                    if (typeof updateCartUI === 'function') updateCartUI();
+                    showToast('ℹ️ Keranjang kamu otomatis disesuaikan dengan sisa stok terbaru.');
+                }
+            }
+
+            if (!silent) showToast('✅ Sisa stok berhasil disinkronkan dari Google Spreadsheet!');
+        }
+    } catch (err) {
+        console.log('Spreadsheet stock sync fallback:', err);
+        if (!silent) showToast('ℹ️ Menggunakan data stok lokal (offline / cache).');
+    } finally {
+        if (stockRefreshIcon) stockRefreshIcon.classList.remove('fa-spin');
+    }
+}
+
+async function postStocksToSpreadsheet(stocks) {
+    if (!state.sheetsEndpointURL) return false;
+
+    try {
+        const payload = {
+            action: 'updateStocks',
+            stocks: stocks,
+            updatedAt: new Date().toISOString()
+        };
+
+        await fetch(state.sheetsEndpointURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        console.log('Stocks successfully synced to Google Spreadsheet webhook.');
+        return true;
+    } catch (err) {
+        console.warn('Sync stocks to Google Spreadsheet warning:', err);
+        return false;
     }
 }
 

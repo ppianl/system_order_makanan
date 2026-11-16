@@ -379,6 +379,10 @@ function openStockModalDirect() {
         state.stockEditMode = false;
         renderStockTable();
         modal.classList.add('active');
+        // Sinkronkan stok terbaru dari Google Spreadsheet saat modal dibuka
+        if (typeof fetchLiveStocksFromSpreadsheet === 'function') {
+            fetchLiveStocksFromSpreadsheet(true);
+        }
     }
 }
 
@@ -426,7 +430,10 @@ function renderStockTable() {
                 <small style="color: var(--text-muted);">Ketik langsung angka atau klik tombol - / +</small>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button type="button" class="btn btn-sm btn-outline" onclick="toggleStockEditMode(false)">
+                <button type="button" class="btn btn-sm btn-outline" onclick="fetchLiveStocksFromSpreadsheet()" title="Sinkronkan data stok langsung dari Google Sheets">
+                    <i class="fa-solid fa-arrows-rotate" id="stockRefreshIcon"></i> Sinkron Cloud
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="toggleStockEditMode(false)">
                     <i class="fa-solid fa-eye"></i> Mode Pantau
                 </button>
                 <button type="button" class="btn btn-sm btn-outline" onclick="handleResetStocks()" title="Reset ke data awal tabel">
@@ -441,6 +448,9 @@ function renderStockTable() {
                 <i class="fa-solid fa-circle-info"></i> Sisa stok berkurang otomatis saat pesanan masuk, dan bisa diubah kapan saja.
             </span>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm btn-outline" onclick="fetchLiveStocksFromSpreadsheet()" title="Sinkronkan data stok langsung dari Google Sheets">
+                    <i class="fa-solid fa-arrows-rotate" id="stockRefreshIcon"></i> Sinkron Cloud
+                </button>
                 <button type="button" class="btn btn-sm btn-primary" onclick="toggleStockEditMode(true)" style="background: #2563EB; border-color: #2563EB;">
                     <i class="fa-solid fa-pen-to-square"></i> Ubah Stok (Admin)
                 </button>
@@ -596,16 +606,33 @@ function saveAdminStockEdits() {
 
         state.stockEditMode = false;
         renderStockTable();
-        showToast('✅ Stok berhasil disimpan dan langsung diperbarui!');
+        showToast('✅ Stok lokal diperbarui! Menyinkronkan ke Google Sheets...');
+
+        // Kirim sinkronisasi ke webhook Google Spreadsheet
+        if (typeof postStocksToSpreadsheet === 'function') {
+            postStocksToSpreadsheet(stocks).then(ok => {
+                if (ok) {
+                    showToast('☁️ Stok berhasil disinkronkan ke Google Spreadsheet!');
+                }
+            });
+        }
     }
 }
 
 function handleResetStocks() {
     if (confirm('Reset stok ke data default awal (sesuai tabel inventaris)?')) {
-        resetStocksToDefault();
+        const defaultCopy = resetStocksToDefault();
         renderProductsGrid(state.selectedCategory);
         state.stockEditMode = false;
         renderStockTable();
-        showToast('✅ Stok berhasil di-reset ke data default awal!');
+        showToast('✅ Stok di-reset! Menyinkronkan ke Google Sheets...');
+
+        if (typeof postStocksToSpreadsheet === 'function') {
+            postStocksToSpreadsheet(defaultCopy).then(ok => {
+                if (ok) {
+                    showToast('☁️ Stok default berhasil disimpan ke Google Spreadsheet!');
+                }
+            });
+        }
     }
 }
