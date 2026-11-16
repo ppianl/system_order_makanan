@@ -75,10 +75,27 @@ document.addEventListener('DOMContentLoaded', () => {
         setupProofDropzone();
     }
 
-    // 6. Sinkronkan riwayat dari Google Spreadsheet di background
+    // 6. Sinkronkan riwayat pesanan & stok dari Google Spreadsheet di background
     if (typeof fetchLiveOrdersFromSpreadsheet === 'function') {
         fetchLiveOrdersFromSpreadsheet(true);
     }
+    if (typeof fetchLiveStocksFromSpreadsheet === 'function') {
+        fetchLiveStocksFromSpreadsheet(true);
+    }
+
+    // Auto-sync stok berkala setiap 25 detik agar layar semua klien selalu up-to-date
+    setInterval(() => {
+        if (typeof fetchLiveStocksFromSpreadsheet === 'function') {
+            fetchLiveStocksFromSpreadsheet(true);
+        }
+    }, 25000);
+
+    // Saat tab browser dibuka kembali oleh user, otomatis cek stok terbaru
+    window.addEventListener('focus', () => {
+        if (typeof fetchLiveStocksFromSpreadsheet === 'function') {
+            fetchLiveStocksFromSpreadsheet(true);
+        }
+    });
 
     // Mencegah browser membuka file saat di-drag keluar dropzone
     window.addEventListener('dragover', (e) => e.preventDefault(), false);
